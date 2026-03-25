@@ -22,8 +22,7 @@ def run_web():
 threading.Thread(target=run_web).start()
 
 # ===== TEXT DATA =====
-disclaimer = """𝐓𝐇𝐄 𝐒𝐏𝐈𝐑𝐈𝐓 ️:
-⚠️ Disclaimer
+disclaimer = """⚠️ Disclaimer
 
 This bot is created for educational purposes only.
 Trading involves financial risk and may result in loss.
@@ -208,7 +207,7 @@ If you have questions about the learning material
 or need clarification on specific topics,
 you may reach out here:
 
-https://t.me/jjtrader_00
+@jjtrader_00
 
 Support is limited to educational discussion only.
 No personal trading advice or signals are provided.
