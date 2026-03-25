@@ -2,7 +2,7 @@ import telebot
 import os
 import threading
 from flask import Flask
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
@@ -21,7 +21,7 @@ def run_web():
 
 threading.Thread(target=run_web).start()
 
-# ===== BOT DATA =====
+# ===== TEXT DATA =====
 disclaimer = """𝐓𝐇𝐄 𝐒𝐏𝐈𝐑𝐈𝐓 ️:
 ⚠️ Disclaimer
 
@@ -38,21 +38,44 @@ This assistant is designed to guide individuals
 through structured learning related to financial markets,
 risk awareness, and decision-making concepts.
 
+Inside this bot, you will explore:
+
+• Step-by-step learning paths
+• Core market understanding
+• Risk and capital awareness
+• Strategy thinking (conceptual)
+• Self-evaluation guidance
+
+This is not a signal service or advisory platform.
+All content is educational and intended
+to improve understanding only.
+
+Market conditions vary and outcomes are not guaranteed.
+
 Select a learning path below to begin.
 """
 
+# ===== KEYBOARD =====
 def menu():
-    kb = InlineKeyboardMarkup(row_width=2)
-    kb.add(
-        InlineKeyboardButton("🧭 Learning Path", callback_data="learning"),
-        InlineKeyboardButton("📊 Market Behavior", callback_data="market"),
-        InlineKeyboardButton("⚖️ Risk Awareness", callback_data="risk"),
-        InlineKeyboardButton("🧠 Decision Process", callback_data="decision"),
-        InlineKeyboardButton("📉 Mistake Analysis", callback_data="mistake"),
-        InlineKeyboardButton("📩 Learning Support", url="https://t.me/jjtrader_00")
+    kb = ReplyKeyboardMarkup(
+        resize_keyboard=True,
+        input_field_placeholder="Select Learning Section 👇"
+    )
+    kb.row(
+        KeyboardButton("🧭 Learning Path"),
+        KeyboardButton("📊 Market Behavior")
+    )
+    kb.row(
+        KeyboardButton("⚖️ Risk Awareness"),
+        KeyboardButton("🧠 Decision Process")
+    )
+    kb.row(
+        KeyboardButton("📉 Mistake Analysis"),
+        KeyboardButton("📩 Learning Support")
     )
     return kb
 
+# ===== START =====
 @bot.message_handler(commands=['start'])
 def start(m):
     sent = bot.send_message(m.chat.id, disclaimer)
@@ -62,13 +85,18 @@ def start(m):
     except:
         pass
 
-    bot.send_message(m.chat.id, welcome, reply_markup=menu())
+    # auto welcome + keyboard open
+    bot.send_message(
+        m.chat.id,
+        welcome,
+        reply_markup=menu()
+    )
 
 # ===== BUTTON HANDLER =====
-@bot.callback_query_handler(func=lambda call: True)
-def cb(call):
+@bot.message_handler(func=lambda m: True)
+def learning_sections(m):
 
-    if call.data == "learning":
+    if m.text == "🧭 Learning Path":
         text = """🧭 Learning Path
 
 This section provides a structured approach
@@ -96,7 +124,7 @@ not quick results.
 Educational reference only.
 """
 
-    elif call.data == "market":
+    elif m.text == "📊 Market Behavior":
         text = """📊 Market Behavior
 
 Markets move based on supply, demand,
@@ -116,7 +144,7 @@ but does not predict outcomes.
 This is conceptual learning only.
 """
 
-    elif call.data == "risk":
+    elif m.text == "⚖️ Risk Awareness":
         text = """⚖️ Risk Awareness
 
 Every financial activity involves risk.
@@ -135,7 +163,7 @@ only managed responsibly.
 Educational purposes only.
 """
 
-    elif call.data == "decision":
+    elif m.text == "🧠 Decision Process":
         text = """🧠 Decision Process
 
 Decision-making plays a key role
@@ -154,7 +182,7 @@ A clear process is more important than speed.
 This is educational guidance only.
 """
 
-    elif call.data == "mistake":
+    elif m.text == "📉 Mistake Analysis":
         text = """📉 Mistake Analysis
 
 Understanding mistakes is part of learning.
@@ -172,13 +200,25 @@ not repetition.
 
 Educational reference only.
 """
+
+    elif m.text == "📩 Learning Support":
+        text = """📩 Learning Support
+
+If you have questions about the learning material
+or need clarification on specific topics,
+you may reach out here:
+
+https://t.me/jjtrader_00
+
+Support is limited to educational discussion only.
+No personal trading advice or signals are provided.
+"""
     else:
         return
 
-    bot.answer_callback_query(call.id)
-    bot.send_message(call.message.chat.id, text)
+    bot.send_message(m.chat.id, text)
 
-# ===== SAFE POLLING LOOP =====
+# ===== SAFE POLLING =====
 print("Bot Running...")
 
 while True:
